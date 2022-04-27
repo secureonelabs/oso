@@ -70,6 +70,13 @@ export function typeOrmAdapter<R>(
       // condition to sql
       const sqlCondition = (c: FilterCondition): string => {
         c = expandObjectComparison(c);
+        if (!isProjection(c.rhs) && c.rhs.value === null) {
+          if (c.cmp === "Eq") {
+            return `${sqlData(c.lhs)} is null`;
+          } else if (c.cmp === "Neq") {
+            return `${sqlData(c.lhs)} is not null`;
+          }
+        }
         return `${sqlData(c.lhs)} ${ops[c.cmp]} ${sqlData(c.rhs)}`;
       };
       // for storing interpolated values
